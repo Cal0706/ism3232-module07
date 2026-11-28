@@ -43,28 +43,17 @@ def create_tables(db_file):
 
 def find_order(db_file, order_id):
     """Find a customer order by its ID."""
-    return query_one(
-        db_file,
-        "SELECT * FROM orders WHERE order_id = ?",
-        (order_id,)
-    )
+    return query_one(db_file, "SELECT * FROM orders WHERE order_id = ?", (order_id,))
 
 
 def find_item(db_file, name):
     """Find a menu item by its name."""
-    return query_one(
-        db_file,
-        "SELECT * FROM menu_items WHERE name = ?",
-        (name,)
-    )
+    return query_one(db_file, "SELECT * FROM menu_items WHERE name = ?", (name,))
 
 
 def item_names(db_file):
     """Return all menu item names."""
-    rows = query_all(
-        db_file,
-        "SELECT name FROM menu_items ORDER BY name"
-    )
+    rows = query_all(db_file, "SELECT name FROM menu_items ORDER BY name")
     return [row["name"] for row in rows]
 
 
@@ -81,16 +70,14 @@ def add_change_request(db_file, order_id, new_quantity):
         """INSERT INTO change_requests
         (order_id, new_quantity)
         VALUES (?, ?)""",
-        (order_id, new_quantity)
+        (order_id, new_quantity),
     )
 
 
 def find_request(db_file, number):
     """Find a change request by its number."""
     return query_one(
-        db_file,
-        "SELECT * FROM change_requests WHERE number = ?",
-        (number,)
+        db_file, "SELECT * FROM change_requests WHERE number = ?", (number,)
     )
 
 
@@ -100,7 +87,7 @@ def waiting_requests(db_file):
         db_file,
         """SELECT * FROM change_requests
         WHERE status = ? ORDER BY number""",
-        ("waiting",)
+        ("waiting",),
     )
 
 
@@ -111,8 +98,7 @@ def approve_request(db_file, number):
         conn.row_factory = sqlite3.Row
 
         request = conn.execute(
-            "SELECT * FROM change_requests WHERE number = ?",
-            (number,)
+            "SELECT * FROM change_requests WHERE number = ?", (number,)
         ).fetchone()
 
         if request is None:
@@ -123,12 +109,12 @@ def approve_request(db_file, number):
 
         conn.execute(
             "UPDATE orders SET quantity = ? WHERE order_id = ?",
-            (request["new_quantity"], request["order_id"])
+            (request["new_quantity"], request["order_id"]),
         )
 
         conn.execute(
             "UPDATE change_requests SET status = ? WHERE number = ?",
-            ("approved", number)
+            ("approved", number),
         )
 
     return f"Request {number} approved."
@@ -141,8 +127,7 @@ def reject_request(db_file, number):
         conn.row_factory = sqlite3.Row
 
         request = conn.execute(
-            "SELECT * FROM change_requests WHERE number = ?",
-            (number,)
+            "SELECT * FROM change_requests WHERE number = ?", (number,)
         ).fetchone()
 
         if request is None:
@@ -153,7 +138,7 @@ def reject_request(db_file, number):
 
         conn.execute(
             "UPDATE change_requests SET status = ? WHERE number = ?",
-            ("rejected", number)
+            ("rejected", number),
         )
 
     return f"Request {number} rejected."
@@ -161,16 +146,9 @@ def reject_request(db_file, number):
 
 def all_orders(db_file):
     """Return all customer orders."""
-    return query_all(
-        db_file,
-        "SELECT * FROM orders ORDER BY order_id"
-    )
+    return query_all(db_file, "SELECT * FROM orders ORDER BY order_id")
 
 
 def all_items(db_file):
     """Return all menu items and inventory."""
-    return query_all(
-        db_file,
-        "SELECT * FROM menu_items ORDER BY name"
-    )
-
+    return query_all(db_file, "SELECT * FROM menu_items ORDER BY name")

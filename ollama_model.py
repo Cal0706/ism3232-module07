@@ -2,7 +2,9 @@
 # Author: Cam Lopez
 
 from ollama import ResponseError, chat
+
 MAX_MESSAGES = 20
+
 
 class OllamaModel:
     """A real AI model that runs on this computer through Ollama."""

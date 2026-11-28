@@ -26,9 +26,7 @@ class BeanTools:
             order_id: The order ID, like B101.
         """
         for word in order_id.upper().split():
-            order = database.find_order(
-                self.db_file, word.strip("?.!,#")
-            )
+            order = database.find_order(self.db_file, word.strip("?.!,#"))
 
             if order is not None:
                 return (
@@ -48,17 +46,12 @@ class BeanTools:
         """
         for name in database.item_names(self.db_file):
             if self.words(name) in self.words(item):
-                product = database.find_item(
-                    self.db_file, name
-                )
+                product = database.find_item(self.db_file, name)
 
                 stock = product["stock"]
                 price = product["price"]
 
-                return (
-                    f"We have {stock} of the {name} "
-                    f"in stock, at ${price:.2f} each."
-                )
+                return f"We have {stock} of the {name} in stock, at ${price:.2f} each."
 
         return "That menu item was not found."
 
@@ -83,16 +76,11 @@ class BeanTools:
             return "The quantity must be a positive whole number."
 
         try:
-            number = database.add_change_request(
-                self.db_file, order_id, quantity
-            )
+            number = database.add_change_request(self.db_file, order_id, quantity)
         except OverflowError:
             return "That quantity is too large."
 
-        return (
-            f"Request {number} was sent to staff. "
-            "The quantity has not changed yet."
-        )
+        return f"Request {number} was sent to staff. The quantity has not changed yet."
 
     def check_request(self, number):
         """Check what staff decided about a quantity change.
@@ -101,9 +89,7 @@ class BeanTools:
             number: The request number, like 3.
         """
         try:
-            request = database.find_request(
-                self.db_file, int(number)
-            )
+            request = database.find_request(self.db_file, int(number))
         except ValueError:
             return "Request numbers look like 3."
         except OverflowError:
@@ -116,14 +102,10 @@ class BeanTools:
 
         if request["status"] == "waiting":
             return (
-                f"Request {number} for order {order_id} "
-                "is waiting for staff approval."
+                f"Request {number} for order {order_id} is waiting for staff approval."
             )
 
-        return (
-            f"Request {number} for order {order_id} "
-            f"was {request['status']}."
-        )
+        return f"Request {number} for order {order_id} was {request['status']}."
 
     def run(self, name, arguments, history):
         """Run a tool only if every check passes."""
@@ -170,9 +152,7 @@ class BeanTools:
                 "10": "ten",
             }
 
-            word = quantity_words.get(
-                new_quantity, new_quantity
-            )
+            word = quantity_words.get(new_quantity, new_quantity)
 
             if not (
                 self.customer_said(history, new_quantity)
@@ -180,9 +160,7 @@ class BeanTools:
             ):
                 return "The customer has not given that quantity. Ask them for it."
 
-            return self.request_quantity_change(
-                order_id, new_quantity
-            )
+            return self.request_quantity_change(order_id, new_quantity)
 
         if name == "check_request":
             number = self.clean(arguments, "number")
@@ -191,7 +169,9 @@ class BeanTools:
                 return "The request number is missing. Ask the customer for it."
 
             if not self.customer_said(history, number):
-                return "The customer has not given that request number. Ask them for it."
+                return (
+                    "The customer has not given that request number. Ask them for it."
+                )
 
             return self.check_request(number)
 
@@ -219,4 +199,3 @@ class BeanTools:
                 return True
 
         return False
-    
